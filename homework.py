@@ -53,8 +53,8 @@ def get_homeworks(current_timestamp):
     try:
         homework_statuses = requests.get(url, headers=headers, params=payload)
     except Exception as e:
-            error_message = f'Ошибка при работе с API: {e}'
-            logger.error(error_message)
+        error_message = f'Ошибка при работе с API: {e}'
+        logger.error(error_message)
     return homework_statuses.json()
 
 
