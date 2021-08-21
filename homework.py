@@ -15,6 +15,7 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
+url = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -31,8 +32,12 @@ logger.addHandler(handler)
 
 
 def parse_homework_status(homework):
-    homework_name = homework['homework_name']
-    homework_statuses = homework['status']
+    homework_name = homework.get('homework_name')
+    if homework_name is None:
+        return f'Работу {homework_name} еще не проверили'
+    homework_statuses = homework.get('status')
+    if homework_name is None:
+        return f'Работу {homework_name} еще не проверили'
     if homework_statuses == 'rejected':
         verdict = 'К сожалению, в работе нашлись ошибки.'
     else:
@@ -41,10 +46,15 @@ def parse_homework_status(homework):
 
 
 def get_homeworks(current_timestamp):
-    url = 'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
+    if current_timestamp is None:
+        current_timestamp = int(time.time())
     headers = {'Authorization': f'OAuth {PRAKTIKUM_TOKEN}'}
     payload = {'from_date': current_timestamp}
-    homework_statuses = requests.get(url, headers=headers, params=payload)
+    try:
+        homework_statuses = requests.get(url, headers=headers, params=payload)
+    except Exception as e:
+            error_message = f'Ошибка при работе с API: {e}'
+            logger.error(error_message)
     return homework_statuses.json()
 
 
