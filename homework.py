@@ -36,7 +36,7 @@ def parse_homework_status(homework):
     if homework_name is None:
         return f'Работу {homework_name} еще не проверили'
     homework_statuses = homework.get('status')
-    if homework_name is None:
+    if homework_statuses is None:
         return f'Работу {homework_name} еще не проверили'
     if homework_statuses == 'rejected':
         verdict = 'К сожалению, в работе нашлись ошибки.'
@@ -52,9 +52,8 @@ def get_homeworks(current_timestamp):
     payload = {'from_date': current_timestamp}
     try:
         homework_statuses = requests.get(url, headers=headers, params=payload)
-    except Exception as e:
-        error_message = f'Ошибка при работе с API: {e}'
-        logger.error(error_message)
+    except requests.exceptions.RequestException as e:
+        raise f'Ошибка при работе с API: {e}'
     return homework_statuses.json()
 
 
